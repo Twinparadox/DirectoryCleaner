@@ -23,7 +23,7 @@ namespace DirectoryCleaner
         // 확장자별로 인접행렬 구조를 만들었다면, 이번에는 리스트뷰그룹별로 인접행렬 구조를 만드는 것이 괜찮을 것 같음.
         private List<FileList> fileInfos = null;
         private List<List<FileList>> fileListTable = null;
-        private List<List<bool>> checkTables = null;
+        private List<List<int>> indexTable = null;
         private List<ListViewGroup> listGroups = null;
 
         private bool?[,] checkTable;
@@ -41,19 +41,22 @@ namespace DirectoryCleaner
 
             fileListTable = new List<List<FileList>>(
                 Enum.GetNames(typeof(Extension.ExtensionCode)).Length + 1);
-            checkTables = new List<List<bool>>(
-                Enum.GetNames(typeof(Extension.ExtensionCode)).Length + 1);
+            indexTable = new List<List<int>>();
             for (int i = 0; i < fileListTable.Capacity; i++)
             {
                 fileListTable.Add(new List<FileList>());
-                checkTables.Add(new List<bool>());
             }
 
             listGroups = new List<ListViewGroup>();
 
             ApplyAllFiles(MainForm.pTextPath.Text, SearchFile);
             for (int i = 1; i < fileListTable.Capacity; i++)
-                CheckDuplicateFiles(i);
+            {
+                if (fileListTable[i].Count != 0)
+                {
+                    CheckDuplicateFiles(i);
+                }
+            }
             MakeDuplicateFileList();
         }
 
@@ -65,8 +68,11 @@ namespace DirectoryCleaner
                 try
                 {
                     FileList element = new FileList(searchPath);
-                    fileInfos.Add(element);
-                    fileListTable[element.ExtensionCode].Add(element);
+                    if (element.ExtensionCode != -1)
+                    {
+                        fileInfos.Add(element);
+                        fileListTable[element.ExtensionCode].Add(element);
+                    }
                 }
                 catch (UnauthorizedAccessException e)
                 {
@@ -105,16 +111,32 @@ namespace DirectoryCleaner
         {
             int listSize = fileListTable[code].Count;
             int size = fileInfos.Count;
-            List<bool> checkFileList = new List<bool>(listSize);
+            bool[] checkFileList = new bool[listSize];
+            for (int i = 0; i < listSize; i++)
+                checkFileList[i] = false;
 
             checkTable = new bool?[size, size];
 
             for(int i=0;i<listSize;i++)
             {
-                for(int j=0;j<listSize;j++)
+                List<int> indexList = new List<int>();
+                if (checkFileList[i] == false)
                 {
-                    if (fileListTable[code][i].CompareByteToByte(fileListTable[code][j]))
-                        checkFileList[i] = checkFileList[j] = true;
+                    for (int j = 0; j < listSize; j++)
+                    {
+                        if (i!=j && checkFileList[j] == false && fileListTable[code][i].CompareByteToByte(fileListTable[code][j]))
+                        {
+                            checkFileList[i] = checkFileList[j] = true;
+                            if(indexList.Count==0)
+                                indexList.Add(i);
+                            indexList.Add(j);
+                        }
+                    }
+                }
+
+                if(indexList.Count!=0)
+                {
+                    indexTable.Add(indexList);
                 }
             }
 
@@ -134,6 +156,35 @@ namespace DirectoryCleaner
         public void MakeDuplicateFileList()
         {
             ListViewDuplicateList.BeginUpdate();
+            int tableListSize = indexTable.Count;
+
+            for(int i=0;i<tableListSize;i++)
+            {
+                int listSize = indexTable[i].Count;
+                int cnt = 0;
+                ListViewGroup index = null;
+                for(int j=0;j<listSize;j++)
+                {
+                    if (cnt == 0)
+                    {
+                        index = new ListViewGroup(fileInfos[indexTable[i][j]].GetFileName());
+                        ListViewDuplicateList.Groups.Add(index);
+                    }
+                    ListViewDuplicateList.Items.Add(
+                            new ListViewItem(new string[] {
+                                    Extension.GetKorFileType(fileInfos[indexTable[i][j]].ExtensionCode),
+                                    fileInfos[indexTable[i][j]].GetFileName(),
+                                    fileInfos[indexTable[i][j]].DirectoryPath},
+                            index));
+                    cnt++;
+                }
+                if (index != null)
+                    listGroups.Add(index);
+            }
+
+            // 기존의 리스트뷰그룹 작성 코드
+            // 불
+            /*
             int size = fileInfos.Count;
             for (int i = 0; i < size; i++)
             {
@@ -174,8 +225,9 @@ namespace DirectoryCleaner
                     listGroups.Add(index);
 
             }
+            */
             ListViewDuplicateList.EndUpdate();
-        }
+        }   
 
         public void RefreshListView()
         {

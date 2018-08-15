@@ -146,7 +146,7 @@ namespace DirectoryCleaner
             {
                 return false;
             }
-            if(ExtensionCode==compare.ExtensionCode)
+            if(this.ExtensionCode != compare.ExtensionCode)
             {
                 return false;
             }
