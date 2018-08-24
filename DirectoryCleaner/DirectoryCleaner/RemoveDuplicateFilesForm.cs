@@ -140,6 +140,7 @@ namespace DirectoryCleaner
                 }
             }
 
+            /*
             for (int i = 0; i < size; i++)
             {
                 checkTable[i, i] = false;
@@ -151,6 +152,7 @@ namespace DirectoryCleaner
                     }
                 }
             }
+            */
         }
 
         public void MakeDuplicateFileList()
@@ -183,7 +185,6 @@ namespace DirectoryCleaner
             }
 
             // 기존의 리스트뷰그룹 작성 코드
-            // 불
             /*
             int size = fileInfos.Count;
             for (int i = 0; i < size; i++)

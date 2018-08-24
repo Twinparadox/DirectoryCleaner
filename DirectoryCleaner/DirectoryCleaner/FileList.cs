@@ -9,16 +9,13 @@ using System.Threading.Tasks;
 namespace DirectoryCleaner
 {
     /// <summary>
-    /// 파일정보, 해시코드, 확장자코드를 이용한 중복 확인. 
-    /// 해시코드:LSF에 대해서는 엄청난 속도 저하 발견.
-    /// TODO: 해시 계산은 일단 주석처리했음, 다른 방안을 모색해야 함.
+    /// 파일정보, 해시코드, 확장자코드를 이용한 중복 확인.
     /// </summary>
     public sealed class FileList
     {
         private string filePath;
         private string directoryPath;
         private FileInfo item;
-        private byte[] hashcode;
 
         public string FilePath
         {
@@ -55,9 +52,7 @@ namespace DirectoryCleaner
             }
             set
             {
-                if (value == null)
-                    throw new ArgumentException("FileInfo cannot be blank", "FilePath");
-                item = value;
+                item = value ?? throw new ArgumentException("FileInfo cannot be blank", "FilePath");
             }
         }
 
@@ -66,7 +61,6 @@ namespace DirectoryCleaner
             FilePath = null;
             DirectoryPath = null;
             Item = null;
-            //hashcode = null;
             ExtensionCode = -1;
         }
 
@@ -75,7 +69,6 @@ namespace DirectoryCleaner
             FilePath = filePath;
             Item = new FileInfo(filePath);
             DirectoryPath = item.DirectoryName;
-            //hashcode = MD5.Create().ComputeHash(item.OpenRead());
 
             string fileType = Extension.CheckExtensionType(item.Extension.Substring(1, item.Extension.Length - 1));
             ExtensionCode = Extension.GetExtensionCode(fileType);
@@ -87,7 +80,6 @@ namespace DirectoryCleaner
             DirectoryPath = null;
             Item.Delete();
             ExtensionCode = -1;
-            hashcode = null;
         }
 
         public string GetFileName()
@@ -114,24 +106,6 @@ namespace DirectoryCleaner
             }
         }
 
-        /// <summary>
-        /// HashCode Comparison
-        /// using MD5 Hash Algorithm
-        /// TODO : 다른 방안 모색하거나 삭제 고려
-        /// </summary>
-        /// <param name="compare"></param>
-        /// <returns></returns>
-        public bool CompareHashCode(FileList compare)
-        {
-            for (int i = 0; i < this.hashcode.Length; i++)
-            {
-                if (this.hashcode[i] != compare.hashcode[i])
-                {
-                    return false;
-                }
-            }
-            return true;
-        }
         /// <summary>
         /// Byte To Byte Comparison
         /// using Parallel.For
