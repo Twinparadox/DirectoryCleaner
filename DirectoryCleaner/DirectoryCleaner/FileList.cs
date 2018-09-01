@@ -25,8 +25,8 @@ namespace DirectoryCleaner
             }
             set
             {
-                if ((value == null) || (value.Length == 0))
-                    throw new ArgumentException("FilePath cannot be blank", "FilePath");
+                if (value == null)
+                    throw new ArgumentException("FilePath cannot be null", "FilePath");
                 filePath = value;
             }
         }
@@ -38,8 +38,8 @@ namespace DirectoryCleaner
             }
             set
             {
-                if ((value == null) || (value.Length == 0))
-                    throw new ArgumentException("DirectoryPath Cannot be blank", "DirectoryPath");
+                if (value == null)
+                    throw new ArgumentException("DirectoryPath Cannot be null", "DirectoryPath");
                 directoryPath = value;
             }
         }
@@ -52,7 +52,7 @@ namespace DirectoryCleaner
             }
             set
             {
-                item = value ?? throw new ArgumentException("FileInfo cannot be blank", "FilePath");
+                item = value ?? throw new ArgumentException("FileInfo cannot be null", "FilePath");
             }
         }
 
@@ -76,8 +76,8 @@ namespace DirectoryCleaner
 
         public void DeleteFile()
         {
-            FilePath = null;
-            DirectoryPath = null;
+            FilePath = "";
+            DirectoryPath = "";
             Item.Delete();
             ExtensionCode = -1;
         }

@@ -139,20 +139,6 @@ namespace DirectoryCleaner
                     indexTable.Add(indexList);
                 }
             }
-
-            /*
-            for (int i = 0; i < size; i++)
-            {
-                checkTable[i, i] = false;
-                for (int j = 0; j < size; j++)
-                {
-                    if (checkTable[i, j] == null)
-                    {
-                        checkTable[i, j] = checkTable[j, i] = fileInfos[i].CompareByteToByte(fileInfos[j]);
-                    }
-                }
-            }
-            */
         }
 
         public void MakeDuplicateFileList()
@@ -184,49 +170,6 @@ namespace DirectoryCleaner
                     listGroups.Add(index);
             }
 
-            // 기존의 리스트뷰그룹 작성 코드
-            /*
-            int size = fileInfos.Count;
-            for (int i = 0; i < size; i++)
-            {
-                int cnt = 0;
-                ListViewGroup index = null;
-                for (int j = i; j < size; j++)
-                {
-                    if (checkTable[i, j] == true)
-                    {
-                        if (cnt == 0)
-                        {
-                            index = new ListViewGroup(fileInfos[i].GetFileName());
-                            ListViewDuplicateList.Groups.Add(index);
-                            ListViewDuplicateList.Items.Add(
-                                new ListViewItem(new string[]
-                                {
-                                    Extension.GetKorFileType(fileInfos[i].ExtensionCode),
-                                    fileInfos[i].GetFileName(),
-                                    fileInfos[i].DirectoryPath},
-                                index));
-                        }
-                        ListViewDuplicateList.Items.Add(
-                                new ListViewItem(new string[] {
-                                    Extension.GetKorFileType(fileInfos[j].ExtensionCode),
-                                    fileInfos[j].GetFileName(),
-                                    fileInfos[j].DirectoryPath},
-                                index));
-                        cnt++;
-
-                        // 이 부분 너무 비효율적이니, 개선해야 함.
-                        for (int k = 0; k < size; k++)
-                        {
-                            checkTable[j, k] = false;
-                        }
-                    }
-                }
-                if (index != null)
-                    listGroups.Add(index);
-
-            }
-            */
             ListViewDuplicateList.EndUpdate();
         }   
 
@@ -288,32 +231,32 @@ namespace DirectoryCleaner
             {
                 try
                 {
-                    HashSet<FileList> deleteFileInfoIndex = new HashSet<FileList>();
-                    HashSet<int> deleteListViewIndex = new HashSet<int>();
                     ListView.SelectedListViewItemCollection selectedItem = this.ListViewDuplicateList.SelectedItems;
                     int selectedItemSize = selectedItem.Count;
                     int fileInfoSize = fileInfos.Count;
 
-                    // 이미 삭제된 파일을 HashSet에 넣는 비효율 작업 해결 필요.
+                    bool[] checkSelected = new bool[selectedItemSize];
+                    List<FileList> deleteFileList = new List<FileList>();
+
                     for (int i = 0; i < selectedItemSize; i++)
                     {
-                        for (int j = 0; j < fileInfoSize; j++)
+                        for (int j = 0; j < fileInfoSize && checkSelected[i] == false; j++)
                         {
-                            if (selectedItem[i].SubItems[1].Text.Equals(fileInfos[j].GetFileName()) == true)
+                            if (checkSelected[i]==false && selectedItem[i].SubItems[1].Text.Equals(fileInfos[j].GetFileName()) == true)
                             {
-                                deleteFileInfoIndex.Add(fileInfos[j]);
-                                deleteListViewIndex.Add(i);
+                                deleteFileList.Add(fileInfos[j]);
+                                checkSelected[i] = true;
                             }
                         }
                     }
-                    
-                    while(selectedItem.Count!=0)
-                    {
-                        selectedItem[0].Remove();
-                    }
-                    foreach(FileList info in deleteFileInfoIndex)
+
+                    foreach(FileList info in deleteFileList)
                     {
                         info.DeleteFile();
+                    }
+                    while (selectedItem.Count!=0)
+                    {
+                        selectedItem[0].Remove();
                     }
 
                     MessageBox.Show("선택한 파일이 삭제되었습니다.");
