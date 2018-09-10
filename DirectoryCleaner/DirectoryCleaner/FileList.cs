@@ -25,9 +25,7 @@ namespace DirectoryCleaner
             }
             set
             {
-                if (value == null)
-                    throw new ArgumentException("FilePath cannot be null", "FilePath");
-                filePath = value;
+                filePath = value ?? throw new ArgumentException("FilePath cannot be null", "FilePath");
             }
         }
         public string DirectoryPath
@@ -38,9 +36,7 @@ namespace DirectoryCleaner
             }
             set
             {
-                if (value == null)
-                    throw new ArgumentException("DirectoryPath Cannot be null", "DirectoryPath");
-                directoryPath = value;
+                directoryPath = value ?? throw new ArgumentException("DirectoryPath Cannot be null", "DirectoryPath");
             }
         }
         public int ExtensionCode { get; set; }
