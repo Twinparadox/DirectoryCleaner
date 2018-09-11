@@ -116,7 +116,11 @@ namespace DirectoryCleaner
             {
                 return false;
             }
-            if(this.ExtensionCode != compare.ExtensionCode)
+            if (this.Item.Extension != compare.Item.Extension)
+            {
+                return false;
+            }
+            if(this.Item.LastWriteTime != compare.Item.LastWriteTime)
             {
                 return false;
             }
