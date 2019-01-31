@@ -36,6 +36,7 @@
             this.ButtonExit = new System.Windows.Forms.Button();
             this.ButtonDuplicate = new System.Windows.Forms.Button();
             this.LabelCopyright = new System.Windows.Forms.Label();
+            this.ButtonHelp = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // TextPath
@@ -115,11 +116,24 @@
             this.LabelCopyright.TabIndex = 6;
             this.LabelCopyright.Text = "Copyrightⓒ. 2017-2018. Twinparadox. All Rights Reserved.";
             // 
+            // ButtonHelp
+            // 
+            this.ButtonHelp.Font = new System.Drawing.Font("돋움", 15F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
+            this.ButtonHelp.Location = new System.Drawing.Point(12, 262);
+            this.ButtonHelp.Name = "ButtonHelp";
+            this.ButtonHelp.RightToLeft = System.Windows.Forms.RightToLeft.No;
+            this.ButtonHelp.Size = new System.Drawing.Size(139, 47);
+            this.ButtonHelp.TabIndex = 7;
+            this.ButtonHelp.Text = "도움말";
+            this.ButtonHelp.UseVisualStyleBackColor = true;
+            this.ButtonHelp.Click += new System.EventHandler(this.ButtonHelp_Click);
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(704, 379);
+            this.Controls.Add(this.ButtonHelp);
             this.Controls.Add(this.LabelCopyright);
             this.Controls.Add(this.ButtonDuplicate);
             this.Controls.Add(this.ButtonExit);
@@ -131,7 +145,7 @@
             this.MaximizeBox = false;
             this.Name = "MainForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "DirectoryCleaner";
+            this.Text = "DirectoryCleaner v1.2.1";
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.MainForm_FormClosed);
             this.Load += new System.EventHandler(this.MainForm_Load);
             this.ResumeLayout(false);
@@ -148,6 +162,7 @@
         private System.Windows.Forms.Button ButtonExit;
         private System.Windows.Forms.Button ButtonDuplicate;
         private System.Windows.Forms.Label LabelCopyright;
+        private System.Windows.Forms.Button ButtonHelp;
     }
 }
 
