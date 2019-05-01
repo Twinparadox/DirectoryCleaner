@@ -1,6 +1,9 @@
 {
   "ExpandedNodes": [
-    ""
+    "",
+    "\\DirectoryCleaner",
+    "\\DirectoryCleaner\\DirectoryCleaner"
   ],
+  "SelectedNode": "\\DirectoryCleaner\\DirectoryCleaner.sln",
   "PreviewInSolutionExplorer": false
 }

@@ -16,7 +16,7 @@ namespace DirectoryCleaner
 		private List<FileList> fileInfos = null;
 
 		private List<List<FileList>> fileListTable = null;
-		private List<List<int>> indexTable = null;
+		private List<List<List<int>>> indexTable = null;
 		private List<ListViewGroup> listGroups = null;
 
 		private bool?[,] checkTable;
@@ -34,10 +34,11 @@ namespace DirectoryCleaner
 
 			fileListTable = new List<List<FileList>>(
 				Enum.GetNames(typeof(Extension.ExtensionCode)).Length + 1);
-			indexTable = new List<List<int>>();
+            indexTable = new List<List<List<int>>>(fileListTable.Capacity);
 			for (int i = 0; i < fileListTable.Capacity; i++)
 			{
 				fileListTable.Add(new List<FileList>());
+                indexTable.Add(new List<List<int>>());
 			}
 
 			listGroups = new List<ListViewGroup>();
@@ -116,58 +117,62 @@ namespace DirectoryCleaner
 
 			for (int i = 0; i < listSize; i++)
 			{
-				List<int> indexList = new List<int>();
-				if (checkFileList[i] == false)
-				{
-					for (int j = 0; j < listSize; j++)
-					{
-						if (i != j && checkFileList[j] == false && fileListTable[code][i].CompareByteToByte(fileListTable[code][j]))
-						{
-							checkFileList[i] = checkFileList[j] = true;
-							if (indexList.Count == 0)
-								indexList.Add(i);
-							indexList.Add(j);
-						}
-					}
-				}
-
-				if (indexList.Count != 0)
-				{
-					indexTable.Add(indexList);
-				}
+                int count = 0;
+                if (checkFileList[i] == false)
+                {
+                    List<int> indexList = new List<int>();
+                    for (int j = 0; j < listSize; j++)
+                    {
+                        if (i != j && checkFileList[j] == false && fileListTable[code][i].CompareByteToByte(fileListTable[code][j]))
+                        {
+                            checkFileList[i] = checkFileList[j] = true;
+                            if (count == 0)
+                                indexList.Add(i);
+                            indexList.Add(j);
+                            count++;
+                        }
+                    }
+                    if (indexList.Count > 0)
+                    {
+                        indexTable[code].Add(indexList);
+                    }
+                }
 			}
 		}
 
 		public void MakeDuplicateFileList()
 		{
 			ListViewDuplicateList.BeginUpdate();
-			int tableListSize = indexTable.Count;
+            int tableListSize = indexTable.Count;
 
-			for (int i = 0; i < tableListSize; i++)
-			{
-				int listSize = indexTable[i].Count;
-				int cnt = 0;
-				ListViewGroup index = null;
-				for (int j = 0; j < listSize; j++)
-				{
-					if (cnt == 0)
-					{
-						index = new ListViewGroup(fileInfos[indexTable[i][j]].GetFileName());
-						ListViewDuplicateList.Groups.Add(index);
-					}
-					ListViewDuplicateList.Items.Add(
-							new ListViewItem(new string[] {
-									Extension.GetKorFileType(fileInfos[indexTable[i][j]].ExtensionCode),
-									fileInfos[indexTable[i][j]].GetFileName(),
-									fileInfos[indexTable[i][j]].DirectoryPath},
-							index));
-					cnt++;
-				}
-				if (index != null)
-					listGroups.Add(index);
-			}
-
-			ListViewDuplicateList.EndUpdate();
+            for (int code = 0; code < tableListSize; code++)
+            {
+                int groupSize = indexTable[code].Count;
+                for (int groupIdx = 0; groupIdx < groupSize; groupIdx++)
+                {
+                    ListViewGroup index = null;
+                    int cnt = 0;
+                    int size = indexTable[code][groupIdx].Count;
+                    for (int i = 0; i < size; i++)
+                    {
+                        if (cnt == 0)
+                        {
+                            index = new ListViewGroup(fileListTable[code][indexTable[code][groupIdx][i]].GetFileName());
+                            ListViewDuplicateList.Groups.Add(index);
+                        }
+                        ListViewDuplicateList.Items.Add(
+                                new ListViewItem(new string[] {
+                                    Extension.GetKorFileType(fileListTable[code][indexTable[code][groupIdx][i]].ExtensionCode),
+                                    fileListTable[code][indexTable[code][groupIdx][i]].GetFileName(),
+                                    fileListTable[code][indexTable[code][groupIdx][i]].DirectoryPath},
+                                index));
+                        cnt++;
+                    }
+                    if (index != null)
+                        listGroups.Add(index);
+                }
+            }
+            ListViewDuplicateList.EndUpdate();
 		}
 
 		public void RefreshListView()
